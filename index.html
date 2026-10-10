@@ -8,7 +8,7 @@
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC',sans-serif;color:#28333a;background:#f6f8f7}*{box-sizing:border-box}body{margin:0}.app{max-width:640px;margin:auto;padding:18px 15px 80px}header{display:flex;justify-content:space-between;align-items:center}h1{font-size:23px;margin:8px 0}button,select,input,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:9px 13px;background:#e5efed;color:#244b48}button.primary{background:#27877e;color:white}button:disabled{opacity:.45;cursor:not-allowed}.card{background:white;border-radius:18px;padding:15px;margin:15px 0;box-shadow:0 3px 16px #1c3d3810}.muted{color:#71817e;font-size:13px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}select,input,textarea{border:1px solid #dbe5e2;border-radius:10px;padding:10px;background:white;max-width:100%}select{flex:1}.week,.grid{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}.week{color:#81908b;font-size:13px;margin:16px 0 5px}.day{min-height:64px;border-radius:12px;background:transparent;padding:7px 2px;display:flex;align-items:center;flex-direction:column;gap:5px}.day.selected{background:#e4f3f0}.day.today .num{border:1px solid #27877e;border-radius:50%;width:27px;height:27px;display:grid;place-items:center}.dots{display:flex;gap:3px;justify-content:center;flex-wrap:wrap}.dot{width:7px;height:7px;border-radius:50%}.stats{display:flex;gap:8px;flex-wrap:wrap}.chip{font-size:13px;background:#f3f6f5;border-radius:20px;padding:7px 10px}.entry{border-top:1px solid #eef1f0;padding:13px 0}.entry:first-of-type{border-top:0}.entry img{width:76px;height:76px;object-fit:cover;border-radius:10px;margin:5px 5px 0 0}.badge{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}.fab{position:fixed;right:max(20px,calc((100vw - 640px)/2 + 20px));bottom:24px;border-radius:30px;box-shadow:0 4px 15px #0002;padding:14px 20px}dialog{border:0;border-radius:18px;width:min(94vw,520px);max-height:90vh;overflow:auto;padding:20px}dialog::backdrop{background:#0007}label{display:block;margin:12px 0 5px;font-size:14px}textarea{width:100%;min-height:95px}input[type=date],input[type=time],input[type=text]{width:100%}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.small{font-size:12px}.photos{display:flex;flex-wrap:wrap;gap:6px}.photos img{width:72px;height:72px;object-fit:cover;border-radius:8px}.hint{padding:9px;background:#fff8e7;border-radius:10px;font-size:12px;color:#795c25;margin:12px 0}.sync-ok{background:#e6f5ed;color:#27694c}.sync-bad{background:#fff0ed;color:#a23c35}.settings-cat{padding:8px 0;border-bottom:1px solid #eee}.category-row{display:flex;gap:8px;align-items:center;margin:8px 0}.category-row input[type=text]{flex:1;min-width:0}.category-row input[type=color]{padding:2px;width:46px;height:40px;flex:none}.danger{background:#fff0f0;color:#b44343}#syncStatus{white-space:pre-wrap}
 
-/* V1.6: focused navigation and safe restore controls. */
+/* V1.7: explicit authorization, guarded uploads, and safe restore controls. */
 #month{border:0;background:transparent;font-size:18px;font-weight:700;padding:9px;white-space:nowrap}
 #month:focus-visible{outline:2px solid #27877e}
 #monthPicker{max-width:420px}#monthPicker .month-years{display:flex;align-items:center;justify-content:center;gap:8px}
@@ -35,7 +35,7 @@
 <section class="card"><h3>本月事件統計</h3><div id="stats" class="stats"></div></section>
 <section class="card"><div class="row between"><h3 id="listTitle">紀錄列表</h3><span class="muted" id="count"></span></div><div id="entries"></div></section><button class="primary fab" id="new">＋ 新增紀錄</button></main>
 <dialog id="editor"><h3 id="editorTitle">新增紀錄</h3><form id="form"><label>日期</label><input id="date" type="date" required><label>時間（選填）</label><input id="time" type="time"><label>事件類別</label><select id="category" required></select><label>文字紀錄</label><textarea id="note" placeholder="今天發生什麼事？"></textarea><label>照片（可多選；保留原始畫質）</label><input id="files" type="file" accept="image/*" multiple><div id="photoPreview" class="photos"></div><div class="actions"><button type="button" id="cancel">取消</button><button class="primary" type="submit">儲存</button></div></form></dialog>
-<dialog id="settingsDialog"><h3 id="settingsTitle" tabindex="-1" autofocus>貓咪管理</h3><p class="muted">修改名字不影響已有紀錄。沒有健康紀錄的貓咪可以刪除（至少保留一隻）。</p><div id="catSettings"></div><div class="row" style="margin-top:12px"><input id="newCatName" type="text" placeholder="新增貓咪名字" style="flex:1"><button id="addCat" type="button">＋新增貓咪</button></div><h3>事件分類與顏色</h3><p class="muted">所有貓咪共用，最多 10 個分類。停用分類不會刪除歷史紀錄。</p><div id="categories"></div><div class="row"><input id="newCategory" type="text" placeholder="新增分類名稱" style="flex:1"><input id="newColor" type="color" value="#459dd6"><button id="addCategory" type="button">新增</button></div><hr style="border:0;border-top:1px solid #eee;margin:20px 0"><h3>☁️ Google Drive 同步</h3><p class="muted">資料會存到你的 Google Drive 中本 App 建立的備份檔。僅在開啟網頁並取得授權、網路正常時同步；iPhone 不支援保證背景即時同步。</p><div class="row"><button class="primary" id="connectDrive" type="button">連接 Google Drive</button><button id="syncNow" type="button">立即同步</button><button id="verifyPhotos" type="button">檢查雲端照片</button><button id="restoreCloud" type="button">從雲端還原</button></div><p class="muted" id="syncDetail"></p><hr style="border:0;border-top:1px solid #eee;margin:20px 0"><h3>🗑️ 最近刪除（30 天）</h3><p class="muted">刪除的紀錄與照片保留 30 天，期間可還原；到期後於下次開啟時清除。</p><div id="trashEntries"></div><p class="muted">Google 測試模式可能要求重新授權。請確認顯示「已同步」再關閉網頁。</p><div class="actions"><button class="primary" id="closeSettings" type="button">完成</button></div></dialog>
+<dialog id="settingsDialog"><h3 id="settingsTitle" tabindex="-1" autofocus>貓咪管理</h3><p class="muted">修改名字不影響已有紀錄。沒有健康紀錄的貓咪可以刪除（至少保留一隻）。</p><div id="catSettings"></div><div class="row" style="margin-top:12px"><input id="newCatName" type="text" placeholder="新增貓咪名字" style="flex:1"><button id="addCat" type="button">＋新增貓咪</button></div><h3>事件分類與顏色</h3><p class="muted">所有貓咪共用，最多 10 個分類。停用分類不會刪除歷史紀錄。</p><div id="categories"></div><div class="row"><input id="newCategory" type="text" placeholder="新增分類名稱" style="flex:1"><input id="newColor" type="color" value="#459dd6"><button id="addCategory" type="button">新增</button></div><hr style="border:0;border-top:1px solid #eee;margin:20px 0"><h3>☁️ Google Drive 同步</h3><p class="muted">「連接 Google Drive」只會取得授權及檢查差異，不會覆蓋資料。手機及雲端不同時會暫停自動同步；按「上傳手機備份」才會確認是否取代雲端。「從雲端還原」會再次確認是否取代手機。授權正常且雙方先前一致時，手機的新變更仍可自動同步；iPhone 不保證背景同步。</p><div class="row"><button class="primary" id="connectDrive" type="button">連接 Google Drive</button><button id="syncNow" type="button">上傳手機備份</button><button id="verifyPhotos" type="button">檢查雲端照片</button><button id="restoreCloud" type="button">從雲端還原</button></div><p class="muted" id="syncDetail"></p><hr style="border:0;border-top:1px solid #eee;margin:20px 0"><h3>🗑️ 最近刪除（30 天）</h3><p class="muted">刪除的紀錄與照片保留 30 天，期間可還原；到期後於下次開啟時清除。</p><div id="trashEntries"></div><p class="muted">Google 測試模式可能要求重新授權。請確認顯示「已同步」再關閉網頁。</p><div class="actions"><button class="primary" id="closeSettings" type="button">完成</button></div></dialog>
 <dialog id="monthPicker"><h3>選擇年月</h3><div class="month-years"><button type="button" id="yearDown">‹</button><input type="number" id="pickYear" inputmode="numeric" aria-label="年份" min="1" max="9999"><button type="button" id="yearUp">›</button></div><div id="monthChoices"></div><div class="actions"><button type="button" id="cancelMonth">取消</button><button type="button" class="primary" id="applyMonth">跳轉</button></div></dialog>
 <div id="photoViewer" role="dialog" aria-modal="true" aria-label="放大檢視照片" aria-hidden="true">
   <div class="viewer-top"><span class="muted" style="color:#dfe9e7">照片原始畫質・雙指可放大</span><button type="button" id="viewerClose" aria-label="關閉照片">✕ 關閉</button></div>
@@ -68,6 +68,8 @@ async function initialize(){try{db=await openDB();let stored=await dbGet(),legac
 
 let catId=data.cats[0]?.id,now=new Date(),year=now.getFullYear(),month=now.getMonth(),selected=null,editId=null,keptPhotos=[];
 let token=null,tokenExpiry=0,driveFileId=localStorage.getItem(CLOUD_KEY)||'',isSyncing=false,dirty=localStorage.getItem(DIRTY_KEY)==='1',syncTimer=null,requestTokenClient=null;
+// V1.7: authorization is read-only; explicit backup and restore are separate decisions.
+let cloudBaseline=null,cloudConflict=true;
 function iso(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function status(message,type=''){let el=$('syncStatus');el.textContent=message;el.className='hint '+(type==='ok'?'sync-ok':type==='bad'?'sync-bad':'');$('syncDetail').textContent=message}
@@ -123,9 +125,78 @@ function persistCloudId(id){driveFileId=id;localStorage.setItem(CLOUD_KEY,id)}
 async function findCloud(){if(driveFileId){try{let r=await api('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(driveFileId)+'?fields=id,name,trashed');let d=await r.json();if(!d.trashed)return d.id}catch(e){if(!String(e.message).includes('404'))throw e}driveFileId='';localStorage.removeItem(CLOUD_KEY)}let query=encodeURIComponent("name = '"+BACKUP_NAME.replace(/'/g,"\\'")+"' and trashed = false");let r=await api('https://www.googleapis.com/drive/v3/files?q='+query+'&fields=files(id,name,createdTime),nextPageToken&page_size=100&orderBy=createdTime%20desc');let files=(await r.json()).files||[];if(files.length){persistCloudId(files[0].id);return driveFileId}return null}
 async function readCloud(id){let r=await api('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(id)+'?alt=media');let d=await r.json();if(!valid(d))throw new Error('雲端備份格式不正確，已停止同步，以免覆蓋資料。');return normalizeState(d)}
 async function uploadCloud(snapshot){let blob=new Blob([JSON.stringify(snapshot)],{type:'application/json'});if(driveFileId){await api('https://www.googleapis.com/upload/drive/v3/files/'+encodeURIComponent(driveFileId)+'?uploadType=media',{method:'PATCH',headers:{'Content-Type':'application/json'},body:blob});return}let boundary='cat_diary_'+Date.now(),meta={name:BACKUP_NAME,mimeType:'application/json',description:'Cat Health Diary app backup'};let body=new Blob(['--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n',JSON.stringify(meta),'\r\n--'+boundary+'\r\nContent-Type: application/json\r\n\r\n',blob,'\r\n--'+boundary+'--'],{type:'multipart/related; boundary='+boundary});let r=await api('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+boundary},body});let v=await r.json();if(!v.id)throw new Error('Google Drive 沒有回傳備份檔案 ID');persistCloudId(v.id)}
-async function syncNow(){if(isSyncing||!authenticated())return;isSyncing=true;status('☁️ 正在同步 Google Drive…');let snapshot=clone(data),snapshotJson=JSON.stringify(snapshot);try{if(!driveFileId)await findCloud();if(!driveFileId){await uploadCloud(snapshot)}else if(dirty){await uploadCloud(snapshot)}else{let remote=await readCloud(driveFileId);for(const c of remote.categories)c.active=c.active!==false;await durableWrite(clone(remote));data=remote;localStorage.removeItem(KEY);render()}if(JSON.stringify(data)===snapshotJson){dirty=false;localStorage.removeItem(DIRTY_KEY)}else{dirty=true;localStorage.setItem(DIRTY_KEY,'1')}status(dirty?'本機還有新變更，準備再次同步。':'✅ 已同步至 Google Drive（'+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})+'）',dirty?'':'ok')}catch(e){status('⚠️ 尚未同步：'+e.message+'\n紀錄仍在這台裝置，請勿清除 Safari 資料。','bad')}finally{isSyncing=false;if(dirty&&authenticated()&&JSON.stringify(data)!==snapshotJson)scheduleSync()}}
-function scheduleSync(){clearTimeout(syncTimer);if(authenticated())syncTimer=setTimeout(syncNow,1200)}
-$('connectDrive').onclick=async()=>{if(!ready)return;try{status('正在向 Google 要求授權…');await getToken(true);let existing=await findCloud();if(existing){let cloud=await readCloud(existing);if(JSON.stringify(data)!==JSON.stringify(cloud)){let useLocal=confirm('Google Drive 已有不同的備份（可能包含舊的貓咪名字或照片）。\n\n「確定」：以目前 App 資料取代雲端備份。\n「取消」：把雲端備份下載到這台手機。\n\n兩種方式都不會自動合併，請先確定要保留哪一份。');if(useLocal){dirty=true;localStorage.setItem(DIRTY_KEY,'1')}else{await durableWrite(clone(cloud));data=cloud;dirty=false;localStorage.removeItem(DIRTY_KEY);render()}}}else{dirty=true;localStorage.setItem(DIRTY_KEY,'1')}await syncNow()}catch(e){status('⚠️ 連接失敗：'+e.message+'\n手機裡的紀錄沒有被刪除。','bad')}};
+function backupSummary(d){
+ const photos=d.entries.reduce((n,e)=>n+(e.photos||[]).length,0);
+ return `${d.cats.length} 隻貓、${d.entries.length} 筆紀錄、${photos} 張照片（最近刪除 ${(d.trash||[]).length} 筆）`;
+}
+async function syncNow(manual=false){
+ if(isSyncing||!authenticated()||!ready)return;
+ if(!manual&&cloudConflict)return;
+ isSyncing=true;
+ const snapshot=clone(data), snapshotJson=JSON.stringify(snapshot);
+ status('☁️ 正在檢查 Google Drive 備份…');
+ try{
+  const id=await findCloud();
+  let remote=null,remoteJson=null;
+  if(id){remote=await readCloud(id);remoteJson=JSON.stringify(remote)}
+  // A successful no-change check never overwrites either side.
+  if(remoteJson===snapshotJson){
+   cloudBaseline=remoteJson;cloudConflict=false;
+   if(JSON.stringify(data)===snapshotJson){dirty=false;localStorage.removeItem(DIRTY_KEY)}
+   status('✅ 手機與 Google Drive 備份一致（'+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})+'）','ok');
+   return;
+  }
+  // If someone else changed the cloud copy, or we're connecting for the first time to a different copy,
+  // automatic upload must halt instead of silently overwriting anything.
+  const unexpectedRemote=(remoteJson!==cloudBaseline);
+  if(!manual&&(cloudConflict||unexpectedRemote)){
+   cloudConflict=true;
+   status('⚠️ 手機與雲端備份不同，已暫停自動同步。請在設定中明確選擇「上傳手機備份」或「從雲端還原」。','bad');
+   return;
+  }
+  if(manual){
+   const description=remote
+    ? `目前手機：${backupSummary(snapshot)}\n雲端現有：${backupSummary(remote)}\n\n此操作只會將手機資料「整份取代」雲端備份，不會合併；雲端較舊但手機沒有的資料將被覆蓋。`
+    : `目前手機：${backupSummary(snapshot)}\nGoogle Drive 尚無此 App 的備份檔。`;
+   if(!confirm(description+'\n\n確定上傳目前手機資料到 Google Drive 嗎？')){
+    cloudConflict=true;
+    status('已取消上傳；手機及 Google Drive 資料均未更動。');
+    return;
+   }
+  }
+  // Cloud changed since baseline: refuse background writes. Manual user consent was shown above.
+  await uploadCloud(snapshot);
+  cloudBaseline=snapshotJson;cloudConflict=false;
+  if(JSON.stringify(data)===snapshotJson){dirty=false;localStorage.removeItem(DIRTY_KEY)}
+  else{dirty=true;localStorage.setItem(DIRTY_KEY,'1')}
+  status(dirty?'目前手機還有較新的變更，等待再次同步。':'✅ 已上傳至 Google Drive（'+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})+'）',dirty?'':'ok');
+ }catch(e){
+  cloudConflict=true;
+  status('⚠️ 尚未完成雲端備份：'+(e.message||e)+'\n手機資料未刪除，請勿清除 App 資料。','bad');
+ }finally{
+  isSyncing=false;
+  if(dirty&&!cloudConflict&&authenticated()&&JSON.stringify(data)!==snapshotJson)scheduleSync();
+ }
+}
+function scheduleSync(){clearTimeout(syncTimer);if(authenticated()&&!cloudConflict&&ready)syncTimer=setTimeout(()=>syncNow(false),1200)}
+$('connectDrive').onclick=async()=>{
+ if(!ready||isSyncing)return;
+ try{
+  status('正在向 Google 要求授權（不會更動手機或雲端資料）…');
+  await getToken(true);
+  const id=await findCloud();
+  if(!id){cloudBaseline=null;cloudConflict=true;status('✅ Google Drive 已授權。雲端尚無備份；需要時點「上傳手機備份」建立。','ok');return}
+  const cloud=await readCloud(id),remoteJson=JSON.stringify(cloud),localJson=JSON.stringify(data);
+  cloudBaseline=remoteJson;
+  cloudConflict=(localJson!==remoteJson);
+  if(cloudConflict){
+   status('✅ Google Drive 已授權，但尚未同步。\n手機：'+backupSummary(data)+'\n雲端：'+backupSummary(cloud)+'\n兩份資料不同；已暫停自動同步。請自行選擇「上傳手機備份」或「從雲端還原」，兩者都不會自動合併。');
+  }else{
+   dirty=false;localStorage.removeItem(DIRTY_KEY);
+   status('✅ Google Drive 已授權，手機與雲端資料一致（'+backupSummary(data)+'）。','ok');
+  }
+ }catch(e){cloudConflict=true;status('⚠️ 連接失敗：'+(e.message||e)+'\n手機與雲端資料未被更動。','bad')}
+};
 
 // Read-only verification: checks the complete photo data in the remote backup without overwriting either copy.
 $('verifyPhotos').onclick=async()=>{
@@ -160,11 +231,11 @@ $('restoreCloud').onclick=async()=>{
   if(!confirm(message))return;
   if(!confirm('最後確認：這會覆蓋目前手機的紀錄和照片。確定繼續？'))return;
   const current=clone(data);try{await durableWrite(clone(remote))}catch(err){data=current;throw err}
-  data=remote;dirty=false;localStorage.removeItem(DIRTY_KEY);catId=data.cats[0]?.id;selected=null;settingsRender();render();status('✅ 已從 Google Drive 還原 '+remote.entries.length+' 筆紀錄與 '+photos+' 張照片。','ok');alert('已還原完成。請檢查日期、照片及貓咪名字。');
+  data=remote;dirty=false;cloudBaseline=JSON.stringify(remote);cloudConflict=false;localStorage.removeItem(DIRTY_KEY);catId=data.cats[0]?.id;selected=null;settingsRender();render();status('✅ 已從 Google Drive 還原 '+remote.entries.length+' 筆紀錄與 '+photos+' 張照片。','ok');alert('已還原完成。請檢查日期、照片及貓咪名字。');
  }catch(err){alert('⚠️ 還原失敗：'+(err.message||err)+'。請保留原裝置與備份。')}finally{btn.disabled=false}
 };
 
-$('syncNow').onclick=async()=>{if(!authenticated()){alert('請先按「連接 Google Drive」，重新授權。');return}await syncNow()};
-window.addEventListener('online',()=>{if(authenticated()&&ready)scheduleSync()});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&authenticated()&&dirty)scheduleSync()});
+$('syncNow').onclick=async()=>{if(!authenticated()){alert('請先按「連接 Google Drive」，重新授權。');return}await syncNow(true)};
+window.addEventListener('online',()=>{if(authenticated()&&ready&&!cloudConflict)scheduleSync()});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&authenticated()&&dirty)scheduleSync()});
 document.querySelectorAll('button,select,input,textarea').forEach(el=>{if(!el.disabled){el.dataset.loadingLock='1';el.disabled=true}});initialize();
 </script></body></html>
